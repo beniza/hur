@@ -1,0 +1,225 @@
+{
+    "app_name": "AutoDesk AI - Intelligent Helpdesk System",
+    "version": "1.0.0",
+    "description": "A modern, AI-powered helpdesk application designed to streamline ticket creation, management, and resolution. It leverages AI to analyze voice calls and audio recordings, automatically extracting key issues, action points, and sentiment to assist support agents.",
+    "tech_stack": {
+        "frontend": "Next.js (App Router), React, TypeScript",
+        "styling": "Tailwind CSS, Lucide React (Icons), Framer Motion (Animations)",
+        "backend_simulation": "Next.js API Routes (Server Actions recommended for future)",
+        "database": "SQLite (via Prisma or Drizzle ORM recommended)",
+        "ai_integration": "Browser-native Speech Recognition (Web Speech API) for prototype, scalable to server-side Whisper/LLM integration."
+    },
+    "ticket_lifecycle": {
+        "stages": [
+            {
+                "stage": "Inception",
+                "description": "A ticket is initiated via one of three channels.",
+                "channels": [
+                    "Manual Entry: Agent types in details.",
+                    "Live Call: Real-time transcription and analysis during a phone call.",
+                    "Audio Upload: Agent uploads a recording of a past call."
+                ]
+            },
+            {
+                "stage": "Processing & Analysis",
+                "description": "Raw input is processed to structure data.",
+                "actions": [
+                    "Transcription: Converting speech to text.",
+                    "Extraction: Identifying Topic, Sentiment, Key Issues, Potential Causes.",
+                    "Action Planning: Generating initial Action Points."
+                ]
+            },
+            {
+                "stage": "Triage & Creation",
+                "description": "The agent reviews the AI-generated draft and confirms creation.",
+                "actions": [
+                    "Review: Agent edits summary or action points.",
+                    "Creation: Ticket is saved to the database with 'Open' status."
+                ]
+            },
+            {
+                "stage": "Active Management",
+                "description": "The ticket is worked on by agents.",
+                "features": [
+                    "Next Action Selection: Agent marks one action point as the immediate focus.",
+                    "Progress Tracking: Checking off completed action points.",
+                    "Activity Logging: Automatic logs for status changes, notes, and action point updates.",
+                    "Knowledge Base: AI suggests relevant articles."
+                ]
+            },
+            {
+                "stage": "Resolution",
+                "description": "All action points are completed, and the issue is resolved.",
+                "actions": [
+                    "Closure: Status updated to 'Resolved' or 'Closed'.",
+                    "Feedback: (Optional) Sentiment analysis of final interaction."
+                ]
+            }
+        ]
+    },
+    "architecture": {
+        "pages": [
+            {
+                "route": "/",
+                "name": "Dashboard",
+                "description": "High-level overview for the agent.",
+                "components": [
+                    "StatsCards (Open tickets, Avg response time, etc.)",
+                    "RecentActivityFeed",
+                    "QuickActionButtons"
+                ]
+            },
+            {
+                "route": "/tickets",
+                "name": "Ticket List",
+                "description": "Searchable, filterable list of all tickets.",
+                "components": [
+                    "TicketTable (Sortable columns, status badges)",
+                    "FilterSidebar"
+                ]
+            },
+            {
+                "route": "/tickets/create",
+                "name": "Create Ticket",
+                "description": "Unified interface for creating tickets.",
+                "components": [
+                    "CreationModeSelector (Grid view)",
+                    "LiveCallAssistant (Standalone Module)",
+                    "AudioUploader (Standalone Module)",
+                    "ManualTicketForm (Standalone Module)"
+                ]
+            },
+            {
+                "route": "/tickets/[id]",
+                "name": "Ticket Details",
+                "description": "The main workspace for a specific ticket.",
+                "components": [
+                    "TicketHeader (ID, Status, Priority, Assignee)",
+                    "QuickInsight (Top-level summary & Next Action)",
+                    "TicketSummary (Detailed description, Sentiment)",
+                    "ActionPointList (Interactive checklist with 'Next Action' star)",
+                    "ActivityLog (Timeline of events)",
+                    "KBRecommendations (Sidebar widget)"
+                ]
+            }
+        ],
+        "reusable_components": [
+            {
+                "name": "ActionPointList",
+                "description": "Manages the list of action points. Handles checking, editing, deleting, and 'Next Action' toggling. Emits events for logging.",
+                "props": [
+                    "points",
+                    "onUpdate",
+                    "readOnly"
+                ]
+            },
+            {
+                "name": "ActivityLog",
+                "description": "Renders the timeline of activities. Supports different item types (call, note, log, status_change).",
+                "props": [
+                    "logs",
+                    "onAddNote"
+                ]
+            },
+            {
+                "name": "StatusBadge",
+                "description": "Consistent styling for ticket statuses (Open, In Progress, Resolved).",
+                "props": [
+                    "status"
+                ]
+            },
+            {
+                "name": "PriorityBadge",
+                "description": "Consistent styling for priority levels (Low, Medium, High).",
+                "props": [
+                    "priority"
+                ]
+            },
+            {
+                "name": "SentimentIndicator",
+                "description": "Visual representation of customer sentiment (Emoji + Color).",
+                "props": [
+                    "sentiment"
+                ]
+            }
+        ]
+    },
+    "database_schema": {
+        "tables": [
+            {
+                "name": "users",
+                "columns": [
+                    "id (PK, TEXT)",
+                    "name (TEXT)",
+                    "email (TEXT)",
+                    "role (TEXT)",
+                    "avatar_url (TEXT)"
+                ]
+            },
+            {
+                "name": "tickets",
+                "columns": [
+                    "id (PK, TEXT)",
+                    "title (TEXT)",
+                    "description (TEXT)",
+                    "status (TEXT: open, in-progress, resolved, closed)",
+                    "priority (TEXT: low, medium, high)",
+                    "sentiment (TEXT: positive, neutral, negative)",
+                    "source (TEXT: phone, email, etc.)",
+                    "contact_name (TEXT)",
+                    "assignee_id (FK -> users.id)",
+                    "created_at (DATETIME)",
+                    "updated_at (DATETIME)"
+                ]
+            },
+            {
+                "name": "action_points",
+                "columns": [
+                    "id (PK, TEXT)",
+                    "ticket_id (FK -> tickets.id)",
+                    "text (TEXT)",
+                    "is_completed (BOOLEAN)",
+                    "is_next_action (BOOLEAN)",
+                    "created_at (DATETIME)"
+                ]
+            },
+            {
+                "name": "activity_logs",
+                "columns": [
+                    "id (PK, TEXT)",
+                    "ticket_id (FK -> tickets.id)",
+                    "type (TEXT: call, note, log, status_change)",
+                    "content (TEXT)",
+                    "author_id (FK -> users.id)",
+                    "timestamp (DATETIME)",
+                    "metadata (JSON)"
+                ]
+            },
+            {
+                "name": "kb_articles",
+                "columns": [
+                    "id (PK, TEXT)",
+                    "title (TEXT)",
+                    "content (TEXT)",
+                    "category (TEXT)",
+                    "tags (TEXT)"
+                ]
+            }
+        ]
+    },
+    "ui_ux_guidelines": {
+        "theme": "Modern, Clean, Professional",
+        "colors": {
+            "primary": "Indigo-600",
+            "background": "Slate-50",
+            "surface": "White",
+            "text": "Slate-900"
+        },
+        "principles": [
+            "Visual Hierarchy: Use spacing and typography to guide the eye.",
+            "Feedback: Every action (save, delete, toggle) should provide immediate visual feedback.",
+            "Accessibility: Ensure high contrast and keyboard navigability.",
+            "Responsiveness: Seamless experience across Desktop, Tablet, and Mobile."
+        ]
+    }
+}
