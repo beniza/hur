@@ -141,7 +141,7 @@ export default function Dashboard() {
         </div>
 
         {/* Right Column: Quick Actions & Insights */}
-        <div className="lg:col-span-1 flex flex-col gap-6 lg:h-full lg:overflow-y-auto">
+        <div className="lg:col-span-1 flex flex-col gap-6 lg:h-full lg:overflow-y-auto order-first lg:order-none">
           <QuickActions onAddMessage={handleAddMessage} />
 
           <div className="bg-indigo-900 rounded-2xl p-6 text-white shadow-lg shadow-indigo-200">

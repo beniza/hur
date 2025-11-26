@@ -75,7 +75,7 @@ export function QuickActions({ onAddMessage }: QuickActionsProps) {
                         <Plus className="h-6 w-6" />
                     </div>
                     <div>
-                        <span className="block font-semibold text-indigo-900">Log Manual Ticket</span>
+                        <span className="block font-semibold text-indigo-900">Open a Ticket</span>
                         <span className="text-xs text-indigo-600/80">Walk-in, Phone, or Other</span>
                     </div>
                 </Link>
